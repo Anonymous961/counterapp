@@ -1,68 +1,99 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Button, Text, View } from "react-native";
+import { Button, Alert } from "react-native";
 import {
   GoogleSignin,
-  isErrorWithCode,
-  isSuccessResponse,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
+// Configure Google Sign-In
 GoogleSignin.configure({
   webClientId:
     "905576859551-o0k3pgui6lnjg0pq23g8m222r5tbi350.apps.googleusercontent.com",
+  offlineAccess: true,
 });
 
 export default function Home() {
+  const [isSigninInProgress, setIsSigninInProgress] = useState(false);
+
   const signIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-      console.log("sign in entered");
-      if (isSuccessResponse(response)) {
-        console.log(response.data);
-        // setState({ userInfo: response.data });
-      } else {
-        // sign in was cancelled by user
-        console.log("signin canceled");
-      }
-    } catch (error) {
-      console.log("error entered");
-      console.log(error);
-      if (isErrorWithCode(error)) {
-        switch (error.code) {
-          case statusCodes.IN_PROGRESS:
-            // operation (eg. sign in) already in progress
-            break;
-          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            // Android only, play services not available or outdated
-            break;
-          default:
-          // some other error happened
-        }
-      } else {
-        // an error that's not related to google sign in occurred
-      }
+    if (isSigninInProgress) {
+      return;
     }
-  };
-  const check = async () => {
+
     try {
-      const res = await GoogleSignin.hasPlayServices({
+      setIsSigninInProgress(true);
+
+      // Check if play services are available
+      await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
-      console.log(res);
-      // google services are available
-    } catch (err) {
-      console.error("play services are not available");
+
+      // Attempt to sign in
+      const userInfo = await GoogleSignin.signIn();
+      console.log("Sign-in successful:", userInfo);
+
+      // Get tokens (optional)
+      const tokens = await GoogleSignin.getTokens();
+      console.log("Tokens:", tokens);
+
+      // Here you can handle the successful sign-in
+      // For example, send the tokens to your backend
+    } catch (error: any) {
+      console.error("Detailed error:", error);
+
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Alert.alert("Sign in cancelled by user");
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Alert.alert("Sign in already in progress");
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert("Play services not available or outdated");
+      } else if (error.code === "DEVELOPER_ERROR") {
+        Alert.alert(
+          "Configuration Error",
+          "Please verify your Google Sign-In configuration, including webClientId and SHA fingerprints."
+        );
+      } else {
+        Alert.alert(
+          "Sign in error",
+          error.message || "An unknown error occurred"
+        );
+      }
+    } finally {
+      setIsSigninInProgress(false);
     }
   };
-  console.log("hello");
+
+  const checkPlayServices = async () => {
+    try {
+      const isAvailable = await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      console.log("Play services available:", isAvailable);
+      Alert.alert("Play Services Check", "Play Services are available");
+    } catch (error) {
+      console.error("Play services error:", error);
+      Alert.alert(
+        "Play Services Error",
+        "Google Play Services are not available or outdated"
+      );
+    }
+  };
 
   const getCurrentUser = async () => {
-    const currentUser = GoogleSignin.getCurrentUser();
-    console.log("current user is", currentUser);
-    // setState({ currentUser });
+    try {
+      const currentUser = await GoogleSignin.getCurrentUser();
+      console.log("Current user:", currentUser);
+
+      if (currentUser) {
+        // Handle logged in user
+        const isSignedIn = await GoogleSignin.isSignedIn();
+        console.log("Is signed in:", isSignedIn);
+      }
+    } catch (error) {
+      console.error("Get current user error:", error);
+    }
   };
 
   useEffect(() => {
@@ -72,9 +103,12 @@ export default function Home() {
   return (
     <ThemedView>
       <ThemedText>Login Page</ThemedText>
-      <ThemedText>Login Page</ThemedText>
-      <Button title="Sign in" onPress={signIn} />
-      <Button title="check services" onPress={check} />
+      <Button
+        title={isSigninInProgress ? "Signing in..." : "Sign in with Google"}
+        onPress={signIn}
+        disabled={isSigninInProgress}
+      />
+      <Button title="Check Google Play Services" onPress={checkPlayServices} />
     </ThemedView>
   );
 }
