@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "905576859551",
+    "project_id": "clickcheck-90f2f",
+    "storage_bucket": "clickcheck-90f2f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905576859551:android:acbebb130c14d4d1d99faa",
+        "android_client_info": {
+          "package_name": "com.anonymous961.counterapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "905576859551-o0k3pgui6lnjg0pq23g8m222r5tbi350.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQBAqVunE2dk-d_HSEK8UIUafn0EUXOko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "905576859551-o0k3pgui6lnjg0pq23g8m222r5tbi350.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
