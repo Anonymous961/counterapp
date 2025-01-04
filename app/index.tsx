@@ -9,9 +9,12 @@ import { useEffect, useState } from "react";
 
 // Configure Google Sign-In
 GoogleSignin.configure({
+  scopes: ["https://www.googleapis.com/auth/drive"],
   webClientId:
-    "905576859551-o0k3pgui6lnjg0pq23g8m222r5tbi350.apps.googleusercontent.com",
+    "905576859551-0f5esnj400ggu3ulehrph2lsc9ugl4er.apps.googleusercontent.com",
   offlineAccess: true,
+  forceCodeForRefreshToken: true,
+  profileImageSize: 120,
 });
 
 export default function Home() {
